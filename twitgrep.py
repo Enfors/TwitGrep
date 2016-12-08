@@ -39,8 +39,8 @@ class TwitterThread(threading.Thread):
         # all of Twitter in real time for these keywords.
         self.stream.filter(track=self.keywords)
 
-    @classmethod
-    def read_private(cls, file_name):
+    @staticmethod
+    def read_private(file_name):
         """Return the contents of a file in the private/ directory.
         The purpose of this is to not have to have secrets hardcoded
         in this file."""
