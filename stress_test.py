@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 "Example file illustrating how to use twitgrep from another program."
 
 from __future__ import print_function

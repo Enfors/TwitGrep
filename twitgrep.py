@@ -1,10 +1,8 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 "Script to search Twitter in real time."
 
-from __future__ import print_function
-
 import os
-import Queue
+import queue
 import threading
 
 import tweepy
@@ -56,7 +54,7 @@ class TwitGrep(object):
     def __init__(self, keywords):
         self.twitter_thread = None
         self.keywords = keywords
-        self.msg_queue = Queue.Queue()
+        self.msg_queue = queue.Queue()
 
 
     def __iter__(self):
@@ -69,7 +67,7 @@ class TwitGrep(object):
 
         return self
 
-    def next(self):
+    def __next__(self):
         "This is called on each iteration."
         # Wait for the next message from the Twitter thread.
         # No telling how long this will take - perhaps everybody on
