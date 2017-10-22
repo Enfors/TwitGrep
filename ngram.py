@@ -5,6 +5,8 @@
 
 import doctest
 
+from text import Word, Sentence
+
 
 class NGram(object):
     """The ngram class stores an n-gram.
@@ -13,9 +15,11 @@ class NGram(object):
     is provided, a bi-gram is created. If three words are provided, a
     3-gram is created, and so on.
 
-    >>> bi_gram = NGram(["two", "words"])
+    >>> word1 = Word("some")
+    >>> word2 = Word("words")
+    >>> bi_gram = NGram([word1, word2])
     >>> bi_gram
-    NGram(['two', 'words'])
+    NGram(['some', 'words'])
     >>> print(bi_gram)
     two words
     >>> len(bi_gram)
