@@ -7,30 +7,55 @@ import doctest
 
 
 class Word(object):
-    # """Store a word along with it's type.
+    """Store a word along with it's type.
 
-    # >>> word = Word("fnurgle")
-    # >>> word
-    # Word("fnurgle", word_type=1)
-    # >>> print(word)
-    # fnurgle
+    We create a word like this:
 
-    # >>> word2 = Word("http://www.github.com", Word.TYPE_URL)
-    # >>> word2
-    # Word("http://www.github.com", word_type=2)
-    # >>> print(word2)
-    # http://www.github.com
-    # """
+    >>> word = Word("fnurgle", word_type=Word.TYPE_WORD)
+    >>> word
+    Word('fnurgle', word_type=1)
+    >>> print(word)
+    fnurgle
+
+    We can also create words of different types:
+
+    >>> word2 = Word("http://www.github.com", Word.TYPE_URL)
+    >>> word2
+    Word('http://www.github.com', word_type=2)
+
+    If we don't specify the word type, the code will try to determine
+    its type on its own:
+
+    >>> word3 = Word("http://www.github.com")
+    >>> print(word3)
+    http://www.github.com
+    >>> word4 = Word("@enfors")
+    >>> word4
+    Word('@enfors', word_type=3)
+    """
 
     TYPE_WORD = 1
     TYPE_URL = 2
+    TYPE_USERNAME = 3
+    TYPE_TAG = 4
 
-    def __init__(self, word_text, word_type=TYPE_WORD):
+    def __init__(self, word_text, word_type=None):
+
+        if word_type is None:
+            if "://" in word_text:
+                word_type = Word.TYPE_URL
+            elif word_text[0] == "@":
+                word_type = Word.TYPE_USERNAME
+            elif word_text[0] == "#":
+                word_type = Word.TYPE_TAG
+            else:
+                word_type = Word.TYPE_WORD
+
         self.word_text = word_text
         self.word_type = word_type
 
     def __repr__(self):
-        return 'Word("%s", word_type=%d)' % (self.word_text, self.word_type)
+        return "Word('%s', word_type=%d)" % (self.word_text, self.word_type)
 
     def __str__(self):
         return self.word_text
@@ -64,7 +89,8 @@ def split_sentences(text):
     """
 
     text = normalize_whitespace(text)
-
+    text.replace("!", ".")
+    text.replace("?", ".")
     sentences = [sentence.strip() for sentence in text.split(". ")]
 
     sentences[-1] = sentences[-1].rstrip(".")
