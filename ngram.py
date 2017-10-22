@@ -5,8 +5,6 @@
 
 import doctest
 
-from text import Word, Sentence
-
 
 class NGram(object):
     """The ngram class stores an n-gram.
@@ -39,7 +37,12 @@ class NGram(object):
         return "NGram(%s)" % self.words
 
     def __str__(self):
-        return " ".join(self.words)
+        output = ""
+
+        for word in self.words:
+            output = output + str(word) + " "
+
+        return output.strip()
 
 
 class ValueNGram(NGram):

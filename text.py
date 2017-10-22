@@ -63,6 +63,9 @@ class Word(object):
     def __len__(self):
         return len(self.word_text)
 
+    def __getitem__(self, position):
+        pass
+
 
 class Sentence(list):
     # """Store a sentence in the form of a list of words.
@@ -98,22 +101,33 @@ def split_sentences(text):
     return sentences
 
 
-def make_ngrams(sentence, n):
-    """Make n-grams from a normalized sentence.
+def split_sentence(text):
+    """Given a normalized sentence, return a list of Words.
     """
 
-    words = sentence.split(" ")
+    words = []
+    for part in text.split(" "):
+        words.append(Word(part))
+
+    return words
+
+
+def make_ngrams(words, n):
+    """Make n-grams from a list of words.
+    """
 
     num_words = len(words)
+    print("words:", words)
+    print("num_words:", num_words)
     index = 0
-    ngram_list = []
+    ngrams = []
 
     while index + n <= num_words:
         ngram = words[index:index + n]
-        ngram_list.append(ngram)
+        ngrams.append(ngram)
         index = index + 1
 
-    return ngram_list
+    return ngrams
 
 
 def normalize_and_split_sentences(text):
@@ -177,31 +191,34 @@ mind's inability to correlate all its contents.
 That is not dead which can eternal lie,
 and with strange aeons, even death may die.
 """
+    text = "this is a short sentence"
     sentences = normalize_and_split_sentences(text)
 
     for sentence in sentences:
         print("%s." % "\n".join(textwrap.wrap("  " + sentence)))
 
+    print("sentences[0]:", sentences[0])
+
     print("\nbi-grams:")
 
-    ngrams = make_ngrams(sentences[0], 2)
+    ngrams = make_ngrams(split_sentence(sentences[0]), 2)
 
     for ngram in ngrams:
-        print(ngram)
+        print(str(ngram))
 
-    print("\n3-grams:")
+    # print("\n3-grams:")
 
-    ngrams = make_ngrams(sentences[0], 3)
+    # ngrams = make_ngrams(sentences[0], 3)
 
-    for ngram in ngrams:
-        print(ngram)
+    # for ngram in ngrams:
+    #     print(ngram)
 
-    print("\n4-grams:")
+    # print("\n4-grams:")
 
-    ngrams = make_ngrams(sentences[0], 4)
+    # ngrams = make_ngrams(sentences[0], 4)
 
-    for ngram in ngrams:
-        print(ngram)
+    # for ngram in ngrams:
+    #     print(ngram)
 
 
 if __name__ == "__main__":
