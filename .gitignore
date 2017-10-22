@@ -1,3 +1,4 @@
 private
 *.pyc
-
+data.txt
+data
