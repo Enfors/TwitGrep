@@ -367,6 +367,8 @@ def demo():
         ["jag är övertygad om att om 20 år kommer alla säga att detta "
          "är en klassiker", 80],
         ["det är helt klart en hysteriskt kul film", 80],
+        ["en fantastiskt bra film", 85],
+        ["en fantastisk film", 80],
         ["en jättebra film helt enkelt", 78],
         ["en mycket bra film", 75],
         ["den var riktigt bra måste jag säga", 75],
@@ -401,6 +403,8 @@ def demo():
         ["denna så kallade komedi är inte ett dugg rolig", -40],
         ["en riktigt dålig film", -50],
         ["rent skräp finns inget annat att säga", -65],
+        ["så himla trist", -60],
+        ["så trist att jag nästan somnade", -65],
         ["hur sopig som helst", -70],
         ["asdålig film fattar inte att de gör sånt", -75],
         ["den här filmen suger helt enkelt", -75],
@@ -427,14 +431,30 @@ def demo():
         "sämsta jag har sett på länge",
         "århundradets skitfilm alla kategorier",
         "skräp helt enkelt",
+        "den är lite rolig",
+        "den är ganska rolig",
         "den är jätterolig",
+        "åh gud vilken tråkig film",
+        "fy fan vilken tråkig film",
+        "en väldigt bra film som visar hur en del invandrare "
+        "har det i det här landet",
+        "den var verkligen inspirerande och viktig att titta på "
+        "om fördomar",
+        "man kan verkligen relatera till filmen och det var det "
+        "bästa med den",
+        "det var en helt fantastisk film och den var väldigt "
+        "bra gjord",
+        "den bästa filmen jag har sett",
+        "den sämsta filmen jag har sett",
+        "jag tycker att det är bra filmen",
+        "jag ger 5 betyg till filmen eftersom filmen är rolig",
         ]
 
-    for d in train_data:
-        set_sentence_value(d[0], d[1], min_n, max_n, ngram_matrix)
+    for sentence, score in train_data:
+        set_sentence_value(sentence, score, min_n, max_n, ngram_matrix)
 
-    for d in test_data:
-        get_sentence_value(d, 1, 3, ngram_matrix)
+    for sentence in test_data:
+        get_sentence_value(sentence, 1, 3, ngram_matrix)
 
 
 if __name__ == "__main__":
