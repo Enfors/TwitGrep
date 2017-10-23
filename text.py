@@ -65,7 +65,7 @@ class Word(object):
 
         if keep_case is not True:
             word_text = word_text.lower()
-                
+
         self.word_text = word_text
         self.word_type = word_type
 
@@ -193,6 +193,7 @@ def normalize_whitespace(text):
     new_text = " ".join(words)
     return new_text
 
+
 class NGram(object):
     """The ngram class stores an n-gram.
 
@@ -288,7 +289,6 @@ def set_sentence_value(sentence, value, min_n, max_n, ngram_matrix):
 
             ngram_values.append(value)
             ngram_matrix[n][dict_key] = ngram_values
-            #print("%s:%d" % (dict_key, value))
 
 
 def get_sentence_value(sentence, min_n, max_n, ngram_matrix):
@@ -296,7 +296,7 @@ def get_sentence_value(sentence, min_n, max_n, ngram_matrix):
     """
 
     all_values = []
-    
+
     for n in range(min_n, max_n + 1):
         ngrams = make_ngrams(split_sentence(sentence), n)
 
@@ -307,7 +307,7 @@ def get_sentence_value(sentence, min_n, max_n, ngram_matrix):
                 all_values.extend(ngram_matrix[n][dict_key])
             except KeyError:
                 pass  # This ngram didn't exist
-                
+
     try:
         avg = sum(all_values) / len(all_values)
     except ZeroDivisionError:
@@ -317,29 +317,27 @@ def get_sentence_value(sentence, min_n, max_n, ngram_matrix):
 
     return avg
 
-        
+
 def demo():
     """Demonstrate the functionality in action.
     """
 
-    import textwrap
+    # text = """
+    # This is some text, split into several sentences over a number
+    # of lines. Let's see what we can do with it. It's still a bit
+    # short though, so I should probably make it longer by adding
+    # more and more nonsense that noone wants to read. But that's\r\n
+    # okay, since it's not meant to be read by humans.\r\n
 
-    text = """
-    This is some text, split into several sentences over a number
-    of lines. Let's see what we can do with it. It's still a bit
-    short though, so I should probably make it longer by adding
-    more and more nonsense that noone wants to read. But that's\r\n
-    okay, since it's not meant to be read by humans.\r\n
-    
-    The most merciful thing in the world, I think, is the human
-    mind's inability to correlate all its contents.
-    
-    That is not dead which can eternal lie,
-    and with strange aeons, even death may die.
-    """
-    sentences = normalize_and_split_sentences(text)
-    sentence = sentences[5]
-    sentence = "That is not dead which can eternal lie"
+    # The most merciful thing in the world, I think, is the human
+    # mind's inability to correlate all its contents.
+
+    # That is not dead which can eternal lie,
+    # and with strange aeons, even death may die.
+    # """
+    # sentences = normalize_and_split_sentences(text)
+    # sentence = sentences[5]
+    # sentence = "That is not dead which can eternal lie"
 
     ngram_matrix = [{},
                     {},
@@ -350,7 +348,7 @@ def demo():
     max_n = 3
 
     print("min_n: %d, max_n: %d" % (min_n, max_n))
-    
+
     train_data = [
         ["en film i absolut världsklass", 90],
         ["det här är årets bästa film alla kategorier", 85],
@@ -394,7 +392,6 @@ def demo():
 
     for d in test_data:
         get_sentence_value(d, 1, 3, ngram_matrix)
-
 
 
 if __name__ == "__main__":
