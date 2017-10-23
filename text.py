@@ -112,24 +112,6 @@ def split_sentence(text):
     return words
 
 
-def make_ngrams(words, n):
-    """Make n-grams from a list of words.
-    """
-
-    num_words = len(words)
-    print("words:", words)
-    print("num_words:", num_words)
-    index = 0
-    ngrams = []
-
-    while index + n <= num_words:
-        ngram = words[index:index + n]
-        ngrams.append(ngram)
-        index = index + 1
-
-    return ngrams
-
-
 def normalize_and_split_sentences(text):
     """Return normalized sentences.
 
@@ -171,6 +153,60 @@ def normalize_whitespace(text):
     new_text = " ".join(words)
     return new_text
 
+class NGram(object):
+    """The ngram class stores an n-gram.
+
+    Given a list of words, an n-gram is created. If a list of two words
+    is provided, a bi-gram is created. If three words are provided, a
+    3-gram is created, and so on.
+
+    >>> word1 = Word("some")
+    >>> word2 = Word("words")
+    >>> bi_gram = NGram([word1, word2])
+    >>> bi_gram
+    NGram([Word('some', word_type=1), Word('words', word_type=1)])
+    >>> print(bi_gram)
+    some words
+    >>> len(bi_gram)
+    2
+    """
+
+    def __init__(self, words):
+        if not words:
+            words = []
+        else:
+            self.words = words
+
+    def __len__(self):
+        return len(self.words)
+
+    def __repr__(self):
+        return "NGram(%s)" % self.words
+
+    def __str__(self):
+        output = ""
+
+        for word in self.words:
+            output = output + str(word) + " "
+
+        return output.strip()
+
+
+def make_ngrams(words, n):
+    """Make n-grams from a list of words.
+    """
+
+    num_words = len(words)
+    index = 0
+    n_grams = []
+
+    while index + n <= num_words:
+        n_gram = NGram(words[index:index + n])
+        n_grams.append(n_gram)
+        index = index + 1
+
+    return n_grams
+
 
 def demo():
     """Demonstrate the functionality in action.
@@ -191,7 +227,6 @@ mind's inability to correlate all its contents.
 That is not dead which can eternal lie,
 and with strange aeons, even death may die.
 """
-    text = "this is a short sentence"
     sentences = normalize_and_split_sentences(text)
 
     for sentence in sentences:
@@ -201,10 +236,10 @@ and with strange aeons, even death may die.
 
     print("\nbi-grams:")
 
-    ngrams = make_ngrams(split_sentence(sentences[0]), 2)
+    n_grams = make_ngrams(split_sentence(sentences[0]), 2)
 
-    for ngram in ngrams:
-        print(str(ngram))
+    for n_gram in n_grams:
+        print(str(n_gram))
 
     # print("\n3-grams:")
 
