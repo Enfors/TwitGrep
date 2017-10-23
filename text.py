@@ -271,6 +271,53 @@ def make_ngrams(words, n):
     return n_grams
 
 
+def set_sentence_value(sentence, value, min_n, max_n, ngram_matrix):
+    """Give a value to a sentence, and all its ngrams.
+    """
+
+    for n in range(min_n, max_n + 1):
+        ngrams = make_ngrams(split_sentence(sentence), n)
+
+        for ngram in ngrams:
+            dict_key = str(ngram)
+
+            try:
+                ngram_values = ngram_matrix[n][dict_key]
+            except KeyError:
+                ngram_values = []
+
+            ngram_values.append(value)
+            ngram_matrix[n][dict_key] = ngram_values
+            #print("%s:%d" % (dict_key, value))
+
+
+def get_sentence_value(sentence, min_n, max_n, ngram_matrix):
+    """Get the value for a sentence.
+    """
+
+    all_values = []
+    
+    for n in range(min_n, max_n + 1):
+        ngrams = make_ngrams(split_sentence(sentence), n)
+
+        for ngram in ngrams:
+            dict_key = str(ngram)
+
+            try:
+                all_values.extend(ngram_matrix[n][dict_key])
+            except KeyError:
+                pass  # This ngram didn't exist
+                
+    try:
+        avg = sum(all_values) / len(all_values)
+    except ZeroDivisionError:
+        avg = 0
+
+    print("Value for '%s': %d" % (sentence, avg))
+
+    return avg
+
+        
 def demo():
     """Demonstrate the functionality in action.
     """
@@ -278,48 +325,78 @@ def demo():
     import textwrap
 
     text = """
-This is some text, split into several sentences over a number
-of lines. Let's see what we can do with it. It's still a bit
-short though, so I should probably make it longer by adding
-more and more nonsense that noone wants to read. But that's\r\n
-okay, since it's not meant to be read by humans.\r\n
-
-The most merciful thing in the world, I think, is the human
-mind's inability to correlate all its contents.
-
-That is not dead which can eternal lie,
-and with strange aeons, even death may die.
-"""
+    This is some text, split into several sentences over a number
+    of lines. Let's see what we can do with it. It's still a bit
+    short though, so I should probably make it longer by adding
+    more and more nonsense that noone wants to read. But that's\r\n
+    okay, since it's not meant to be read by humans.\r\n
+    
+    The most merciful thing in the world, I think, is the human
+    mind's inability to correlate all its contents.
+    
+    That is not dead which can eternal lie,
+    and with strange aeons, even death may die.
+    """
     sentences = normalize_and_split_sentences(text)
     sentence = sentences[5]
+    sentence = "That is not dead which can eternal lie"
 
-    for sentence in sentences:
-        print("%s." % "\n".join(textwrap.wrap("  " + sentence)))
+    ngram_matrix = [{},
+                    {},
+                    {},
+                    {}]
 
-    print("sentence:", sentence)
+    min_n = 1
+    max_n = 3
 
-    print("\nbi-grams:")
+    print("min_n: %d, max_n: %d" % (min_n, max_n))
+    
+    train_data = [
+        ["en film i absolut världsklass", 90],
+        ["det här är årets bästa film alla kategorier", 85],
+        ["så jävla bra", 83],
+        ["jag är övertygad om att om 20 år kommer alla säga att detta "
+         "är en klassiker", 80],
+        ["en jättebra film helt enkelt", 78],
+        ["en mycket bra film", 75],
+        ["den var riktigt bra måste jag säga", 75],
+        ["en riktigt bra film", 70],
+        ["den var förvånande nog ganska bra ändå", 60],
+        ["den här filmen var helt okej tycker jag", 50],
+        ["jag skulle gärna se fler såna här filmer", 40],
+        ["inte den bästa jag sett men inte det sämsta heller", 0],
+        ["den var ganska dålig faktiskt", -30],
+        ["det här var inget mästerverk direkt", -35],
+        ["en riktigt dålig film", -50],
+        ["rent skräp finns inget annat att säga", -65],
+        ["den här filmen suger", -75],
+        ["det var 90 minuter av mitt liv jag aldrig kommer att få "
+         "tillbaka", -80],
+        ["en riktig jävla skitfilm", -85],
+        ["århundradets sämsta film alla kategorier", -90],
+        ["det är den sämsta film jag någonsin sett", -90],
+        ["aldrig har mänligheten utsatts för värre smörja en detta", -95],
+        ]
 
-    n_grams = make_ngrams(split_sentence(sentence), 2)
+    test_data = [
+        "det här är min nya favoritfilm",
+        "jag tyckte den var jättebra",
+        "en ganska bra film",
+        "vill gärna se den igen någon gång",
+        "den var väl okej",
+        "den var skitdålig",
+        "sämsta jag har sett på länge",
+        "århundradets skitfilm alla kategorier",
+        ]
 
-    for n_gram in n_grams:
-        print(str(n_gram))
+    for d in train_data:
+        set_sentence_value(d[0], d[1], min_n, max_n, ngram_matrix)
 
-    print("\n3-grams:")
+    for d in test_data:
+        get_sentence_value(d, 1, 3, ngram_matrix)
 
-    ngrams = make_ngrams(split_sentence(sentence), 3)
-
-    for ngram in ngrams:
-        print(ngram)
-
-    # print("\n4-grams:")
-
-    # ngrams = make_ngrams(split_sentence(sentence), 4)
-
-    # for ngram in ngrams:
-    #     print(ngram)
 
 
 if __name__ == "__main__":
-#    demo()
+    demo()
     doctest.testmod()
