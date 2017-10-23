@@ -302,9 +302,19 @@ def get_sentence_value(sentence, min_n, max_n, ngram_matrix):
 
         for ngram in ngrams:
             dict_key = str(ngram)
+            value_sum = 0
 
             try:
-                all_values.extend(ngram_matrix[n][dict_key])
+                values = ngram_matrix[n][dict_key]
+                for value in values:
+                    value_sum = value_sum + value
+
+                avg = value_sum / len(values)
+
+                # Multiply the average with n, to weigh it.
+                # 3-gram matches are three times more significant than
+                # unigram matches.
+                all_values.append(avg * n)
             except KeyError:
                 pass  # This ngram didn't exist
 
@@ -382,6 +392,7 @@ def demo():
         ["rent skräp finns inget annat att säga", -65],
         ["hur sopig som helst", -70],
         ["den här filmen suger helt enkelt", -75],
+        ["fattar inte hur en film kan vara så dålig", -75],
         ["filmen suger stenhårt", -80],
         ["det var 90 minuter av mitt liv jag aldrig kommer att få "
          "tillbaka", -80],
