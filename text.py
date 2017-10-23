@@ -350,6 +350,7 @@ def demo():
     print("min_n: %d, max_n: %d" % (min_n, max_n))
 
     train_data = [
+        ["helt klart århundradets bästa film", 95],
         ["en film i absolut världsklass", 90],
         ["det här är årets bästa film alla kategorier", 85],
         ["så jävla bra", 83],
@@ -358,25 +359,42 @@ def demo():
         ["en jättebra film helt enkelt", 78],
         ["en mycket bra film", 75],
         ["den var riktigt bra måste jag säga", 75],
+        ["jättebra film skulle vilja se fler av samma regisör", 75],
         ["en riktigt bra film", 70],
+        ["perfekt för en mysig hemmakväll", 65],
         ["den var förvånande nog ganska bra ändå", 60],
         ["den här filmen var helt okej tycker jag", 50],
         ["jag skulle gärna se fler såna här filmer", 40],
+        ["jag tyckte väl att den var ganska bra", 30],
+        ["den duger en regning kväll", 25],
+        ["godkänd men inte mer än så skulle jag säga", 20],
+        ["knappt godkänd men har sina poänger", 15],
+        ["den kunde ha varit värre", 10],
         ["inte den bästa jag sett men inte det sämsta heller", 0],
+        ["vad ska man säga det var inget man vill se igen direkt", -15],
+        ["en småtråkig film måste jag säga", -10],
+        ["den var tråkig vill inte se den igen", -20],
+        ["mycket tråkig film tycker jag", -30],
+        ["den var jättetråkig", -30],
         ["den var ganska dålig faktiskt", -30],
         ["det här var inget mästerverk direkt", -35],
         ["en riktigt dålig film", -50],
         ["rent skräp finns inget annat att säga", -65],
-        ["den här filmen suger", -75],
+        ["hur sopig som helst", -70],
+        ["den här filmen suger helt enkelt", -75],
+        ["filmen suger stenhårt", -80],
         ["det var 90 minuter av mitt liv jag aldrig kommer att få "
          "tillbaka", -80],
+        ["detta var rent skräp finns inget annat att säga", -80],
         ["en riktig jävla skitfilm", -85],
+        ["den var riktigt jävla sämst", -87],
         ["århundradets sämsta film alla kategorier", -90],
         ["det är den sämsta film jag någonsin sett", -90],
         ["aldrig har mänligheten utsatts för värre smörja en detta", -95],
         ]
 
     test_data = [
+        "århundradets bästa film enligt min mening",
         "det här är min nya favoritfilm",
         "jag tyckte den var jättebra",
         "en ganska bra film",
@@ -385,6 +403,7 @@ def demo():
         "den var skitdålig",
         "sämsta jag har sett på länge",
         "århundradets skitfilm alla kategorier",
+        "skräp helt enkelt",
         ]
 
     for d in train_data:
