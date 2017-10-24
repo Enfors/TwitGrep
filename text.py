@@ -123,7 +123,7 @@ def remove_junk_chars(text):
     """Return copy of text without unneeded chars.
     """
 
-    for ch in [",", ":", ";"]:
+    for ch in [",", ":", ";", "(", ")"]:
         text = text.replace(ch, "")
 
     return text
