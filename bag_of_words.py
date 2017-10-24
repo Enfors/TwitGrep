@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 
-"""doctest demo
-
->>> bag = BagOfWords("A lot of silly little words".split(" "))
->>> bag
-BagOfWords(['a', 'lot', 'of', 'silly', 'little', 'words'])
+"""record the frequency of word occurance
 """
 
 
@@ -16,33 +12,18 @@ class BagOfWords(object):
     How to make a bag:
 
     >>> bag = BagOfWords(["A", "bunch", "of", "words"])
-    >>> bag
-    BagOfWords(['a', 'bunch', 'of', 'words'])
 
     You can add more words to an existing bag:
 
     >>> bag.add_words(["Some", "more", "words"])
-    >>> bag
-    BagOfWords(['a', 'bunch', 'of', 'words', 'some', 'more'])
     >>> len(bag)
     6
-
-    You can also generate a frequency vector:
-
-    >>> bag.gen_frequency_vec(["some", "words"])
-    [0, 0, 0, 1, 1, 0]
-    >>> bag.gen_frequency_vec(["some", "more", "words"])
-    [0, 0, 0, 1, 1, 1]
     """
 
     def __init__(self, words=None):
         """Instanciate a bag.
-
-        >>> bag = BagOfWords(["some", "words"])
-        >>> bag
-        BagOfWords(['some', 'words'])
         """
-        self.words = []
+        self.words = {}
         if words is not None:
             self.add_words(words)
 
@@ -50,66 +31,53 @@ class BagOfWords(object):
         """Add words to the bag.
 
         >>> bag = BagOfWords("some silly old words".split(" "))
-        >>> bag
-        BagOfWords(['some', 'silly', 'old', 'words'])
         >>> len(bag)
         4
         >>> bag.add_words("more words".split(" "))
-        >>> bag
-        BagOfWords(['some', 'silly', 'old', 'words', 'more'])
         >>> len(bag)
         5
         """
         for word in words:
-            word = word.lower()
-            if word not in self.words:
-                self.words.append(word)
+            try:
+                num = self.words[word]
+            except KeyError:
+                num = 0
 
-    def gen_frequency_vec(self, in_words):
-        """Return a frequency vector for in_words.
-        >>> bag = BagOfWords("A lot of silly little words of little meaning"
-        ...    .split(" "))
-        >>> bag
-        BagOfWords(['a', 'lot', 'of', 'silly', 'little', 'words', 'meaning'])
-        >>> bag.gen_frequency_vec("some silly words".split(" "))
-        [0, 0, 0, 1, 0, 1, 0]
+            num = num + 1
+            self.words[word] = num
+
+    def sorted_matrix(self, reverse=False):
+        """Return a matrix with words and frequencies, sorted by
+        frequency (descending).
+        >>> bag = BagOfWords("some silly words".split(" "))
+        >>> bag.add_words("some silly".split(" "))
+        >>> bag.add_words(["some"])
+        >>> for k, v in bag.sorted_matrix():
+        ...     print(k, v)
+        words 1
+        silly 2
+        some 3
         """
-        frequency_vec = []
 
-        for word in self.words:
-            frequency_vec.append(in_words.count(word.lower()))
-
-        return frequency_vec
+        matrix = [(k, self.words[k]) for k in sorted(self.words,
+                                                     key=self.words.get,
+                                                     reverse=reverse)]
+        return matrix
 
     def __str__(self):
         """Return a human-readable string representing the bag.
-
-        >>> bag = BagOfWords("some silly words".split(" "))
-        >>> str(bag)
-        "['some', 'silly', 'words']"
-
-        This function is implicitly used when printing a bag:
-
-        >>> print(bag)
-        ['some', 'silly', 'words']
         """
         return str(self.words)
 
     def __repr__(self):
         """Return the code needed to create this bag.
-
-        >>> bag = BagOfWords("some silly words".split(" "))
-        >>> bag
-        BagOfWords(['some', 'silly', 'words'])
         """
-        return "BagOfWords(%s)" % self.words
+        return "BagOfWords(%s)" % self.words()
 
     def __len__(self):
         """Return the number of words in the bag.
 
         >>> bag = BagOfWords("some silly words".split(" "))
-        >>> bag
-        BagOfWords(['some', 'silly', 'words'])
         >>> len(bag)
         3
         >>> bag.add_words("more words".split(" "))
