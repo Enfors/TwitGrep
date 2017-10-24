@@ -5,6 +5,8 @@
 
 import doctest
 
+import bag_of_words
+
 
 class Word(object):
     """Store a word along with it's type.
@@ -125,6 +127,20 @@ def remove_junk_chars(text):
         text = text.replace(ch, "")
 
     return text
+
+
+def remove_words(text, words_to_remove):
+    """Return a copy of the text string with the specified words (not Words)
+    removed.
+    """
+
+    output = ""
+
+    for word in text.split(" "):
+        if word not in words_to_remove:
+            output += word + " "
+
+    return output.strip()
 
 
 def split_sentences(text):
@@ -323,8 +339,6 @@ def get_sentence_value(sentence, min_n, max_n, ngram_matrix):
     except ZeroDivisionError:
         avg = 0
 
-    print("Value for '%s': %d" % (sentence, avg))
-
     return avg
 
 
@@ -354,8 +368,14 @@ def demo():
                     {},
                     {}]
 
+    results = []
+
     min_n = 1
     max_n = 3
+    bag = bag_of_words.BagOfWords()
+
+    swedish_stop_words = ["den", "en", "jag", "är", "var",
+                          "det", "att", "säga", "så", "här", "har"]
 
     print("min_n: %d, max_n: %d" % (min_n, max_n))
 
@@ -451,10 +471,22 @@ def demo():
         ]
 
     for sentence, score in train_data:
+        sentence = remove_words(sentence, swedish_stop_words)
         set_sentence_value(sentence, score, min_n, max_n, ngram_matrix)
+        bag.add_words(sentence.split(" "))
+
+    # print("word frequencies:")
+    # for k, v in bag.sorted_matrix(reverse=True):
+    #     if v > 2:
+    #         print("%-16s: %3d" % (k, v))
 
     for sentence in test_data:
-        get_sentence_value(sentence, 1, 3, ngram_matrix)
+        sentence = remove_words(sentence, swedish_stop_words)
+        results.append([sentence,
+                        get_sentence_value(sentence, 1, 3, ngram_matrix)])
+
+    for sentence, score in sorted(results, key=lambda l: l[1], reverse=True):
+        print("%3d: %s" % (score, sentence))
 
 
 if __name__ == "__main__":
