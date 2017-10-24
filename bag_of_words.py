@@ -7,6 +7,7 @@
 BagOfWords(['a', 'lot', 'of', 'silly', 'little', 'words'])
 """
 
+
 class BagOfWords(object):
     """Represents a bag of words.
 
@@ -66,7 +67,8 @@ class BagOfWords(object):
 
     def gen_frequency_vec(self, in_words):
         """Return a frequency vector for in_words.
-        >>> bag = BagOfWords("A lot of silly little words of little meaning".split(" "))
+        >>> bag = BagOfWords("A lot of silly little words of little meaning"
+        ...    .split(" "))
         >>> bag
         BagOfWords(['a', 'lot', 'of', 'silly', 'little', 'words', 'meaning'])
         >>> bag.gen_frequency_vec("some silly words".split(" "))
@@ -78,7 +80,6 @@ class BagOfWords(object):
             frequency_vec.append(in_words.count(word.lower()))
 
         return frequency_vec
-
 
     def __str__(self):
         """Return a human-readable string representing the bag.
