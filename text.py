@@ -7,6 +7,9 @@ import doctest
 
 import bag_of_words
 
+swedish_stop_words = ["den", "en", "ett", "och",
+                      "det", "att"]
+
 
 class Word(object):
     """Store a word along with it's type.
@@ -50,10 +53,13 @@ class Word(object):
     TYPE_URL = 2
     TYPE_USERNAME = 3
     TYPE_TAG = 4
+    TYPE_EMPTY = 5
 
     def __init__(self, word_text, word_type=None, keep_case=None):
 
-        if word_type is None:
+        if len(word_text) == 0:
+            word_type = Word.TYPE_EMPTY
+        elif word_type is None:
             if "://" in word_text:
                 word_type = Word.TYPE_URL
             elif word_text[0] == "@":
@@ -104,7 +110,6 @@ def normalize(text):
 
     text = normalize_whitespace(text)
     text = unify_sentence_dividers(text)
-    text = remove_junk_chars(text)
 
     return text
 
@@ -123,13 +128,16 @@ def remove_junk_chars(text):
     """Return copy of text without unneeded chars.
     """
 
-    for ch in [",", ":", ";", "(", ")"]:
+    for ch in [": ", "; "]:
+        text = text.replace(ch, " ")
+
+    for ch in [".", ",", "(", ")", '"']:
         text = text.replace(ch, "")
 
     return text
 
 
-def remove_words(text, words_to_remove):
+def remove_words(text, words_to_remove=swedish_stop_words):
     """Return a copy of the text string with the specified words (not Words)
     removed.
     """
@@ -272,6 +280,71 @@ class NGram(object):
         return True
 
 
+class NGramMatrix(object):
+    """A list of dicts, where each dict will hold NGrams.
+    """
+
+    def __init__(self, min_n, max_n):
+        self.min_n = min_n
+        self.max_n = max_n
+        self.matrix = []
+
+        for n in range(0, max_n + 1):
+            self.matrix.append({})
+
+    def set_sentence_value(self, sentence, value):
+        """Give a value to a sentence, and all its ngrams.
+        """
+
+        for n in range(self.min_n, self.max_n + 1):
+            ngrams = make_ngrams(split_sentence(sentence), n)
+
+            for ngram in ngrams:
+                dict_key = str(ngram)
+
+                try:
+                    ngram_values = self.matrix[n][dict_key]
+                except KeyError:
+                    ngram_values = []
+
+                ngram_values.append(value)
+                self.matrix[n][dict_key] = ngram_values
+
+    def get_sentence_value(self, sentence):
+        """Get the value for a sentence.
+        """
+
+        all_values = []
+
+        for n in range(self.min_n, self.max_n + 1):
+            ngrams = make_ngrams(split_sentence(sentence), n)
+
+            for ngram in ngrams:
+                dict_key = str(ngram)
+                value_sum = 0
+
+                try:
+                    values = self.matrix[n][dict_key]
+                    for value in values:
+                        value_sum = value_sum + value
+
+                        avg = value_sum / len(values)
+
+                    # Multiply the average with n, to weigh it.
+                    # 3-gram matches are three times more significant than
+                    # unigram matches.
+                    all_values.append(avg * n)
+                except KeyError:
+                    pass  # This ngram didn't exist
+
+        try:
+            avg = sum(all_values) / len(all_values)
+        except ZeroDivisionError:
+            avg = 0
+
+        return avg
+
+
 def make_ngrams(words, n):
     """Return n-grams from a list of Words.
     """
@@ -286,60 +359,6 @@ def make_ngrams(words, n):
         index = index + 1
 
     return n_grams
-
-
-def set_sentence_value(sentence, value, min_n, max_n, ngram_matrix):
-    """Give a value to a sentence, and all its ngrams.
-    """
-
-    for n in range(min_n, max_n + 1):
-        ngrams = make_ngrams(split_sentence(sentence), n)
-
-        for ngram in ngrams:
-            dict_key = str(ngram)
-
-            try:
-                ngram_values = ngram_matrix[n][dict_key]
-            except KeyError:
-                ngram_values = []
-
-            ngram_values.append(value)
-            ngram_matrix[n][dict_key] = ngram_values
-
-
-def get_sentence_value(sentence, min_n, max_n, ngram_matrix):
-    """Get the value for a sentence.
-    """
-
-    all_values = []
-
-    for n in range(min_n, max_n + 1):
-        ngrams = make_ngrams(split_sentence(sentence), n)
-
-        for ngram in ngrams:
-            dict_key = str(ngram)
-            value_sum = 0
-
-            try:
-                values = ngram_matrix[n][dict_key]
-                for value in values:
-                    value_sum = value_sum + value
-
-                avg = value_sum / len(values)
-
-                # Multiply the average with n, to weigh it.
-                # 3-gram matches are three times more significant than
-                # unigram matches.
-                all_values.append(avg * n)
-            except KeyError:
-                pass  # This ngram didn't exist
-
-    try:
-        avg = sum(all_values) / len(all_values)
-    except ZeroDivisionError:
-        avg = 0
-
-    return avg
 
 
 def demo():
@@ -363,19 +382,12 @@ def demo():
     # sentence = sentences[5]
     # sentence = "That is not dead which can eternal lie"
 
-    ngram_matrix = [{},
-                    {},
-                    {},
-                    {}]
-
     results = []
 
     min_n = 1
     max_n = 3
     bag = bag_of_words.BagOfWords()
-
-    swedish_stop_words = ["den", "en", "jag", "är", "var",
-                          "det", "att", "säga", "så", "här", "har"]
+    matrix = NGramMatrix(min_n, max_n)
 
     print("min_n: %d, max_n: %d" % (min_n, max_n))
 
@@ -405,6 +417,7 @@ def demo():
         ["jag tycker den är ganska rolig", 25],
         ["den duger en regning kväll", 25],
         ["godkänd men inte mer än så skulle jag säga", 20],
+        ["den var lite rolig måste jag erkänna", 20],
         ["knappt godkänd men har sina poänger", 15],
         ["den kunde ha varit värre", 10],
         ["inte den bästa jag sett men inte det sämsta heller", 0],
@@ -437,7 +450,7 @@ def demo():
         ["den var riktigt jävla sämst", -87],
         ["århundradets sämsta film alla kategorier", -90],
         ["det är den sämsta film jag någonsin sett", -90],
-        ["aldrig har mänligheten utsatts för värre smörja en detta", -95],
+        ["aldrig har mänligheten utsatts för värre smörja än detta", -95],
         ]
 
     test_data = [
@@ -471,8 +484,8 @@ def demo():
         ]
 
     for sentence, score in train_data:
-        sentence = remove_words(sentence, swedish_stop_words)
-        set_sentence_value(sentence, score, min_n, max_n, ngram_matrix)
+        sentence = remove_words(sentence)
+        matrix.set_sentence_value(sentence, score)
         bag.add_words(sentence.split(" "))
 
     # print("word frequencies:")
@@ -482,8 +495,7 @@ def demo():
 
     for sentence in test_data:
         sentence = remove_words(sentence, swedish_stop_words)
-        results.append([sentence,
-                        get_sentence_value(sentence, 1, 3, ngram_matrix)])
+        results.append([sentence, matrix.get_sentence_value(sentence)])
 
     for sentence, score in sorted(results, key=lambda l: l[1], reverse=True):
         print("%3d: %s" % (score, sentence))
