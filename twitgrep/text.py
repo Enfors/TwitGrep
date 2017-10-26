@@ -481,6 +481,7 @@ def demo():
         "den sämsta filmen jag har sett",
         "jag tycker att det är bra filmen",
         "jag ger 5 betyg till filmen eftersom filmen är rolig",
+        "den här filmen vill jag se igen",
         ]
 
     for sentence, score in train_data:
