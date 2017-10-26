@@ -3,6 +3,7 @@
 """Run sentiment analysis on Twitter.
 """
 
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, DateTime, String, Integer, func
@@ -34,34 +35,49 @@ class TwitSent(object):
     """
 
     def __init__(self):
-        self.engine = create_engine("sqlite:///tweets.sqlite")
+        self.engine = create_engine("sqlite:////home/enfors/devel/" +
+                                    "python/TwitGrep/twitgrep/tweets.sqlite")
         self.session = sessionmaker()
         self.session.configure(bind=self.engine)
 
         Base.metadata.create_all(self.engine)
 
+        self.search_term="#svpol"
+
     def run(self):
-        X = self.load_data("tweets.csv")
-        model = self.make_model(X)
+        model = self.make_model(search_term=self.search_term, min_n=1, max_n=3)
 
-        self.stream_tweets(X, model)
+        self.stream_tweets(self.search_term, model)
 
-    def load_data(self, path):
+    def load_labeled_data(self, search_term):
         """Load and previously downloaded sentences from secondary storage.
         """
-        pass
+        s = self.session()
+        # return s.query(TweetPart).from_statement(sqlalchemy.text("select * from "
+        #                                                          "tweet_part where "
+        #                                                          "label is not "
+        #                                                          "null").all())
+        data = s.query(TweetPart).filter(TweetPart.target != None).all()
+        print("TwitSent(): Loaded %d rows of data." % len(data))
+        return data
 
-    def make_model(self, X):
+    def make_model(self, search_term, min_n, max_n):
         """Build and return a sentiment analysis model based on X.
         """
-        pass
+        model = text.NGramMatrix(min_n, max_n)
 
-    def stream_tweets(self, X, model):
+        tweet_parts = self.load_labeled_data(search_term)
+
+        for tweet_part in tweet_parts:
+            model.set_sentence_value(tweet_part.post_text, tweet_part.target)
+
+        return model
+
+    def stream_tweets(self, search_term, model):
         """Stream tweets and analyze them in real time.
         """
 
         s = self.session()
-        search_term = "#svpol"
 
         try:
             for status in grep.TwitGrep([search_term]):
@@ -73,13 +89,13 @@ class TwitSent(object):
                 sentences = text.normalize_and_split_sentences(status.text)
                 print("\nTweet from %s:" % status.user.screen_name)
                 for sentence in sentences:
-                    self.handle_sentence(sentence, search_term, status, s)
+                    self.handle_sentence(sentence, search_term, status, s, model)
 
         except KeyboardInterrupt:
             print()
             raise SystemExit
 
-    def handle_sentence(self, sentence, search_term, status, s):
+    def handle_sentence(self, sentence, search_term, status, s, model):
         """Handle sentence (part of a tweet).
         """
 
@@ -96,7 +112,7 @@ class TwitSent(object):
         if len(post_sentence) < 1:
             return False
 
-        print("  -", post_sentence)
+        print("  - My estimation: %.2f" % model.get_sentence_value(post_sentence))
         part = TweetPart(search_term=search_term,
                          user=status.user.screen_name,
                          pre_text=sentence,
