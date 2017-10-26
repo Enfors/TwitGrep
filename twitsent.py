@@ -3,8 +3,30 @@
 """Run sentiment analysis on Twitter.
 """
 
-import twitgrep
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, DateTime, String, Integer, func
+from sqlalchemy.ext.declarative import declarative_base
+
 import text
+import twitgrep
+
+Base = declarative_base()
+
+
+class TweetPart(Base):
+    """A class for storing tweets.
+    """
+
+    __tablename__ = "tweet_part"
+    ident = Column(Integer, primary_key=True)
+    search_term = Column(String)
+    user = Column(String)
+    pre_text = Column(String)
+    post_text = Column(String)
+    time = Column(DateTime, default=func.now())
+    sentiment = Column(Integer)
+    target = Column(Integer)
 
 
 class TwitSent(object):
@@ -12,7 +34,11 @@ class TwitSent(object):
     """
 
     def __init__(self):
-        pass
+        self.engine = create_engine("sqlite:///tweets.sqlite")
+        self.session = sessionmaker()
+        self.session.configure(bind=self.engine)
+
+        Base.metadata.create_all(self.engine)
 
     def run(self):
         X = self.load_data("tweets.csv")
@@ -34,6 +60,7 @@ class TwitSent(object):
         """Stream tweets and analyze them in real time.
         """
 
+        s = self.session()
         search_term = "#svpol"
 
         try:
@@ -42,11 +69,46 @@ class TwitSent(object):
                     continue
                 if "…" in status.text:
                     continue
-                print(self.format_tweet_for_csv(status, search_term) +
-                      "--------")
+
+                sentences = text.normalize_and_split_sentences(status.text)
+                print("\nTweet from %s:" % status.user.screen_name)
+                for sentence in sentences:
+                    self.handle_sentence(sentence, search_term, status, s)
+
         except KeyboardInterrupt:
             print()
             raise SystemExit
+
+    def handle_sentence(self, sentence, search_term, status, s):
+        """Handle sentence (part of a tweet).
+        """
+
+        print(" ", sentence)
+        parts = sentence.split(" ")
+        post_sentence = ""
+        for part in parts:
+            word = text.Word(part)
+            if word.word_type != word.TYPE_URL:
+                post_sentence += str(word) + " "
+
+        post_sentence = text.remove_junk_chars(post_sentence.strip().lower())
+
+        if len(post_sentence) < 1:
+            return False
+
+        print("  -", post_sentence)
+        part = TweetPart(search_term=search_term,
+                         user=status.user.screen_name,
+                         pre_text=sentence,
+                         post_text=post_sentence,
+                         sentiment=None,
+                         target=None)
+        s.add(part)
+        s.commit()
+
+    def set_target(self, tweet, target):
+        """Set a user-defined target sentiment on a tweet part.
+        """
 
     def format_tweet_for_csv(self, status, search_term):
         """Return a string formatted for writing to a CSV file.
