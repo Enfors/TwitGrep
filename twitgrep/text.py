@@ -5,7 +5,7 @@
 
 import doctest
 
-import bag_of_words
+from twitgrep import bag_of_words
 
 swedish_stop_words = ["den", "en", "ett", "och",
                       "det", "att"]

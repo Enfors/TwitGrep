@@ -8,8 +8,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, DateTime, String, Integer, func
 from sqlalchemy.ext.declarative import declarative_base
 
-import text
-import twitgrep
+from twitgrep import text
+from twitgrep import grep
 
 Base = declarative_base()
 
@@ -64,7 +64,7 @@ class TwitSent(object):
         search_term = "#svpol"
 
         try:
-            for status in twitgrep.TwitGrep([search_term]):
+            for status in grep.TwitGrep([search_term]):
                 if status.text.startswith("RT @"):
                     continue
                 if "…" in status.text:
