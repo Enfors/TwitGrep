@@ -42,7 +42,7 @@ class TwitSent(object):
 
         Base.metadata.create_all(self.engine)
 
-        self.search_term="#svpol"
+        self.search_term="Karlstad"
 
     def run(self):
         model = self.make_model(search_term=self.search_term, min_n=1, max_n=3)
