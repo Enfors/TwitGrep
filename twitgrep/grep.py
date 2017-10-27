@@ -35,7 +35,11 @@ class TwitterThread(threading.Thread):
 
         # Instead of listening for tweets from users I follow, search
         # all of Twitter in real time for these keywords.
-        self.stream.filter(track=self.keywords)
+        while True:
+            try:
+                self.stream.filter(track=self.keywords)
+            except AttributeError as e:
+                print("Error from tweepy:", e)
 
     @staticmethod
     def read_private(file_name):
